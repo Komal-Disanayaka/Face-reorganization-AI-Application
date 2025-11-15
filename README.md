@@ -1,4 +1,4 @@
-# Automated Photo Tagging & Organization in Social Media Platforms  
+# Automated Photo Tagging & Organization in Social Media Platforms Using face recognition technology 
 
 > Revolutionizing how users manage and explore their digital memories.  
 
