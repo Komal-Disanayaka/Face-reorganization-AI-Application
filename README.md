@@ -12,6 +12,18 @@ This system reduces the burden of manual tagging, improves user experience, and 
 
 ---
 
+## 🎓 Academic Context
+
+- **Module**: Artificial Intelligence and Machine Learning (AIML- IT2011)
+- **University**: Sri Lanka Institute of Information Technology (SLIIT)
+- **Department**: Faculty of Computing
+- **Year**: 2st Year
+- **Semester**: 1nd Semester
+- **Academic Year**: 2025
+- **Project Type**: AI Application Development Project
+
+---
+
 ## 🎯 Problem Domain: Social Media & Digital Content Management  
 
 1. **Manual Tagging Inefficiency**  
