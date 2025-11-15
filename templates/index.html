@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Face Recognition System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .hero-title {
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 30px;
+    }
+    
+    .feature-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .feature-card h4,
+    .feature-card p {
+        color: var(--text-primary);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+    
+    #imagePreview {
+        max-width: 100%;
+        max-height: 400px;
+        margin-top: 20px;
+        border-radius: 10px;
+        display: none;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .file-name {
+        margin-top: 15px;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .person-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 30px;
+        margin: 8px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: transform 0.3s, box-shadow 0.3s;
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .person-badge:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+    
+    .usage-tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .usage-tips-list li {
+        padding: 15px;
+        margin-bottom: 10px;
+        background: var(--card-bg);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: transform 0.3s, background 0.3s;
+        border-left: 4px solid #10b981;
+        color: var(--text-primary);
+    }
+    
+    .usage-tips-list li:hover {
+        transform: translateX(5px);
+        opacity: 0.9;
+    }
+    
+    .usage-tips-list li i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .sample-face-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+    }
+    
+    .sample-face-image:hover {
+        transform: scale(1.02);
+    }
+    
+    .equal-height-card {
+        height: 100%;
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .equal-height-card h2 {
+        flex-shrink: 0;
+    }
+    
+    .equal-height-card .usage-tips-list {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+    
+    .equal-height-card img {
+        flex-grow: 1;
+        object-fit: contain;
+        max-height: 400px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1 class="hero-title">
+        <i class="fas fa-brain"></i> Face Recognition System
+    </h1>
+    <p class="hero-subtitle">
+        Upload an image and let AI identify the faces instantly
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card-custom">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-upload"></i> Upload Image for Recognition
+            </h2>
+            
+            <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt icon-large"></i>
+                    <h4>Drag & Drop your image here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" name="file" id="fileInput" accept="image/*" required style="display: none;">
+                    <button type="button" class="btn btn-primary-custom mt-3" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <img id="imagePreview" alt="Preview">
+                    <p class="file-name" id="fileName"></p>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary-custom btn-lg" id="submitBtn" style="display: none;">
+                        <i class="fas fa-search"></i> Recognize Faces
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="fas fa-bolt feature-icon"></i>
+            <h4>Fast & Accurate</h4>
+            <p>State-of-the-art deep learning models for quick and precise face recognition</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="fas fa-shield-alt feature-icon"></i>
+            <h4>Secure Processing</h4>
+            <p>Your images are processed locally and not stored permanently</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="fas fa-users feature-icon"></i>
+            <h4>Multiple Faces</h4>
+            <p>Detect and recognize multiple faces in a single image</p>
+        </div>
+    </div>
+</div>
+
+<!-- Known Individuals Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card-custom">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-users"></i> Known Individuals
+            </h2>
+            <p class="text-center text-muted mb-4">
+                The system is currently trained to recognize the following 6 individuals:
+            </p>
+            <div class="row">
+                <!-- First Row -->
+                <div class="col-md-4 text-center mb-3">
+                    <span class="person-badge">
+                        <i class="fas fa-user"></i> Barack Obama
+                    </span>
+                </div>
+                <div class="col-md-4 text-center mb-3">
+                    <span class="person-badge">
+                        <i class="fas fa-user"></i> Colin_Powell
+                    </span>
+                </div>
+                <div class="col-md-4 text-center mb-3">
+                    <span class="person-badge">
+                        <i class="fas fa-user"></i> Donald Trump
+                    </span>
+                </div>
+                <!-- Second Row -->
+                <div class="col-md-4 text-center mb-3">
+                    <span class="person-badge">
+                        <i class="fas fa-user"></i> Donald_Rumsfeld
+                    </span>
+                </div>
+                <div class="col-md-4 text-center mb-3">
+                    <span class="person-badge">
+                        <i class="fas fa-user"></i> George_W_Bush
+                    </span>
+                </div>
+                <div class="col-md-4 text-center mb-3">
+                    <span class="person-badge">
+                        <i class="fas fa-user"></i> Tony_Blair
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Tips and Sample Image Section -->
+<div class="row mt-5">
+    <!-- Left Side - Usage Tips -->
+    <div class="col-lg-6 mb-4">
+        <div class="card-custom equal-height-card">
+            <h2 class="mb-4">
+                <i class="fas fa-lightbulb"></i> Usage Tips
+            </h2>
+            <ul class="usage-tips-list">
+                <li>
+                    <i class="fas fa-check-circle text-success"></i>
+                    Use clear, well-lit images for best results
+                </li>
+                <li>
+                    <i class="fas fa-check-circle text-success"></i>
+                    Ensure faces are not too small in the image
+                </li>
+                <li>
+                    <i class="fas fa-check-circle text-success"></i>
+                    Frontal face images work better than profile views
+                </li>
+                <li>
+                    <i class="fas fa-check-circle text-success"></i>
+                    Avoid heavy occlusions (sunglasses, masks, etc.)
+                </li>
+                <li>
+                    <i class="fas fa-check-circle text-success"></i>
+                    Supported formats: JPG, JPEG, PNG, GIF
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Right Side - Sample Face Image -->
+    <div class="col-lg-6 mb-4">
+        <div class="card-custom equal-height-card text-center">
+            <h2 class="mb-4">
+                <i class="fas fa-image"></i> Sample Recognition
+            </h2>
+            <img src="{{ url_for('static', filename='face-600x900-1.png') }}" 
+                 alt="Sample Face Recognition" 
+                 class="sample-face-image">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileName = document.getElementById('fileName');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Click on upload area to trigger file input
+    uploadArea.addEventListener('click', function(e) {
+        if (e.target !== fileInput) {
+            fileInput.click();
+        }
+    });
+    
+    // File input change event
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+    
+    // Drag and drop events
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function() {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        fileInput.files = files;
+        handleFiles(files);
+    });
+    
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            
+            // Check if file is an image
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            // Display file name
+            fileName.textContent = file.name;
+            
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                submitBtn.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    // Form submission
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+    });
+</script>
+{% endblock %}

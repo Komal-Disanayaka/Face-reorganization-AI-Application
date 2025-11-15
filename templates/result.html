@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Results - Face Recognition System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-section {
+        margin-bottom: 30px;
+    }
+    
+    .image-container {
+        position: relative;
+        text-align: center;
+    }
+    
+    .result-image {
+        max-width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .stats-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .stats-label {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    
+    .face-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 5px solid;
+        transition: transform 0.3s;
+    }
+    
+    .face-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .face-card.high-confidence {
+        border-left-color: #10b981;
+    }
+    
+    .face-card.medium-confidence {
+        border-left-color: #f59e0b;
+    }
+    
+    .face-card.low-confidence {
+        border-left-color: #ef4444;
+    }
+    
+    .face-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .confidence-badge {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    
+    .badge-high {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .badge-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .badge-low {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .progress-bar-custom {
+        height: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+    
+    .action-buttons {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .btn-secondary-custom {
+        background: #6b7280;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        color: white;
+        transition: transform 0.3s;
+    }
+    
+    .btn-secondary-custom:hover {
+        transform: translateY(-2px);
+        background: #4b5563;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 class="text-white">
+        <i class="fas fa-check-circle"></i> Recognition Complete!
+    </h1>
+</div>
+
+<div class="row">
+    <!-- Results Image -->
+    <div class="col-lg-8">
+        <div class="card-custom result-section">
+            <h3 class="mb-4">
+                <i class="fas fa-image"></i> Processed Image
+            </h3>
+            <div class="image-container">
+                <img src="{{ url_for('static', filename='uploads/' + result_image) }}" 
+                     alt="Recognition Result" 
+                     class="result-image">
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('index') }}" class="btn btn-primary-custom">
+                    <i class="fas fa-upload"></i> Upload Another Image
+                </a>
+                <a href="{{ url_for('static', filename='uploads/' + result_image) }}" 
+                   download="{{ result_image }}" 
+                   class="btn btn-secondary-custom">
+                    <i class="fas fa-download"></i> Download Result
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recognition Details -->
+    <div class="col-lg-4">
+        <!-- Statistics -->
+        <div class="stats-card">
+            <div class="stats-number">{{ total_faces }}</div>
+            <div class="stats-label">
+                <i class="fas fa-users"></i> Face{{ 's' if total_faces != 1 else '' }} Detected
+            </div>
+        </div>
+        
+        <!-- Recognized Faces List -->
+        <div class="card-custom">
+            <h4 class="mb-4">
+                <i class="fas fa-list"></i> Recognized Individuals
+            </h4>
+            
+            {% if recognized_faces %}
+                {% for face in recognized_faces %}
+                    {% set confidence_class = 'high' if face.confidence >= 70 else ('medium' if face.confidence >= 50 else 'low') %}
+                    <div class="face-card {{ confidence_class }}-confidence">
+                        <div class="face-name">
+                            <i class="fas fa-user-circle"></i> {{ face.name }}
+                        </div>
+                        
+                        <div class="confidence-badge badge-{{ confidence_class }}">
+                            <i class="fas fa-chart-line"></i> {{ "%.2f"|format(face.confidence) }}% Confidence
+                        </div>
+                        
+                        <div class="progress progress-bar-custom mt-2">
+                            <div class="progress-bar bg-{{ 'success' if confidence_class == 'high' else ('warning' if confidence_class == 'medium' else 'danger') }}" 
+                                 role="progressbar" 
+                                 style="width: {{ face.confidence }}%"
+                                 aria-valuenow="{{ face.confidence }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 text-muted" style="font-size: 0.9rem;">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            Position: ({{ face.bbox[0] }}, {{ face.bbox[1] }}) - ({{ face.bbox[2] }}, {{ face.bbox[3] }})
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No faces were detected in the image. Please try another image with clearer faces.
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Legend -->
+        <div class="card-custom mt-3">
+            <h5><i class="fas fa-info-circle"></i> Confidence Legend</h5>
+            <hr>
+            <div class="mb-2">
+                <span class="confidence-badge badge-high">High (≥70%)</span> - Very confident match
+            </div>
+            <div class="mb-2">
+                <span class="confidence-badge badge-medium">Medium (50-69%)</span> - Probable match
+            </div>
+            <div>
+                <span class="confidence-badge badge-low">Low (<50%)</span> - Uncertain match
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate progress bars on load
+    window.addEventListener('load', function() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.transition = 'width 1s ease-in-out';
+                bar.style.width = width;
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

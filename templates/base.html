@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Face Recognition System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            
+            /* Light Theme Variables */
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #cccccc;
+            --footer-bg: #1e3a5f;
+            --footer-bottom-bg: #152d47;
+            --footer-text: #b8c6db;
+        }
+        
+        /* Dark Theme Variables */
+        body.dark-theme {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --card-bg: #0f3460;
+            --text-primary: #e4e4e4;
+            --text-secondary: #b8b8b8;
+            --border-color: #444444;
+            --footer-bg: #0a1929;
+            --footer-bottom-bg: #020817;
+            --footer-text: #8b9dc3;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding-top: 30px;
+            transition: background 0.3s ease;
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .theme-toggle i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+        
+        .theme-toggle span {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .container-custom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card-custom {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-bottom: 30px;
+            transition: background 0.3s ease;
+        }
+        
+        .card-custom h1,
+        .card-custom h2,
+        .card-custom h3,
+        .card-custom h4,
+        .card-custom p {
+            color: var(--text-primary);
+        }
+        
+        .card-custom .text-muted {
+            color: var(--text-secondary) !important;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 50px;
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: var(--card-bg);
+        }
+        
+        .upload-area h4,
+        .upload-area p {
+            color: var(--text-primary);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .icon-large {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .feature-card h4,
+        .feature-card p {
+            color: var(--text-primary);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Footer Styles */
+        .footer {
+            background: var(--footer-bg);
+            color: white;
+            padding: 60px 0 20px;
+            margin-top: 80px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-section {
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h4 {
+            color: #4fc3f7;
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-section ul li a {
+            color: #b8c6db;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .footer-section ul li a:hover {
+            color: #4fc3f7;
+        }
+        
+        .footer-contact {
+            margin-bottom: 20px;
+        }
+        
+        .footer-contact p {
+            color: #b8c6db;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .footer-contact i {
+            margin-right: 10px;
+            color: #4fc3f7;
+            width: 20px;
+        }
+        
+        .footer-social {
+            margin-top: 20px;
+        }
+        
+        .footer-social a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(79, 195, 247, 0.1);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            color: #4fc3f7;
+            transition: all 0.3s;
+        }
+        
+        .footer-social a:hover {
+            background: #4fc3f7;
+            color: #1e3a5f;
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            background: #152d47;
+            padding: 25px 0;
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .footer-bottom p {
+            margin: 5px 0;
+            color: #b8c6db;
+            font-size: 0.9rem;
+        }
+        
+        .footer-bottom strong {
+            color: #4fc3f7;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="themeIcon"></i>
+        <span id="themeText">Dark Mode</span>
+    </button>
+    
+    <!-- Flash Messages -->
+    <div class="container-custom">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-custom alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-custom">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="row">
+                <!-- Contact Section -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h4><i class="fas fa-comments"></i> Contact Us</h4>
+                    <div class="footer-contact">
+                        <p><i class="fas fa-university"></i> SLIIT University</p>
+                        <p><i class="fas fa-envelope"></i> aiml@sliit.lk</p>
+                        <p><i class="fas fa-phone"></i> +94 (11) 123-4567</p>
+                    </div>
+                    <div class="footer-social">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Solutions Section -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Face Recognition</a></li>
+                        <li><a href="#">Real-time Detection</a></li>
+                        <li><a href="#">Batch Processing</a></li>
+                        <li><a href="#">API Integration</a></li>
+                        <li><a href="#">Custom Training</a></li>
+                        <li><a href="#">Security Solutions</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Company Section -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Academic Projects</a></li>
+                        <li><a href="#">Research Papers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Resources Section -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">User Guide</a></li>
+                        <li><a href="#">Knowledge Base</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="footer-content">
+                <p><i class="fas fa-heart" style="color: #ff6b6b;"></i> Face Recognition System 2025 - Built with Flask, OpenCV, and Deep Learning</p>
+                <p><i class="fas fa-university"></i> <strong>SLIIT University</strong> | Second Year | AIML Module | Academic Year 2024/2025</p>
+                <p><i class="fas fa-users"></i> Group ID: <strong>2025-Y2-S1-MLB-B9G1-02</strong></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            body.classList.toggle('dark-theme');
+            
+            if (body.classList.contains('dark-theme')) {
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Light Mode';
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
